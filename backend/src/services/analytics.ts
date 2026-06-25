@@ -224,6 +224,48 @@ export function computePlugStats(
   return result.sort((a, b) => b.estimatedCostEur - a.estimatedCostEur);
 }
 
+export interface PlugSeries {
+  points: { ts: number; powerW: number | null }[];
+  energyKwh: number;
+  estimatedCostEur: number;
+  currentPowerW: number | null;
+  peakPowerW: number | null;
+  avgPowerW: number | null;
+}
+
+/** Power-over-time + energy/cost for a single plug. */
+export function computePlugSeries(
+  rows: PlugSampleRow[],
+  factors: CostFactors,
+  clampHours: number
+): PlugSeries {
+  const points = rows.map((r) => ({ ts: r.ts, powerW: r.power_w }));
+  let kwh = 0;
+  let peak: number | null = null;
+  let sum = 0;
+  let count = 0;
+  for (let i = 0; i < rows.length; i++) {
+    const w = rows[i].power_w;
+    if (typeof w === "number") {
+      peak = peak === null ? w : Math.max(peak, w);
+      sum += w;
+      count++;
+    }
+    if (i > 0) {
+      const hours = Math.max(0, Math.min((rows[i].ts - rows[i - 1].ts) / 3_600_000, clampHours));
+      kwh += (Math.max(rows[i].power_w ?? 0, 0) / 1000) * hours;
+    }
+  }
+  return {
+    points,
+    energyKwh: kwh,
+    estimatedCostEur: plugCost(kwh, factors),
+    currentPowerW: rows.length ? rows[rows.length - 1].power_w : null,
+    peakPowerW: peak,
+    avgPowerW: count ? sum / count : null,
+  };
+}
+
 /** Convenience wrappers binding a repo + clamp. */
 export class Analytics {
   constructor(
@@ -239,5 +281,10 @@ export class Analytics {
   plugs(range: Range, factors: CostFactors): PlugStat[] {
     const rows = this.repo.getPlugSamplesSince(rangeStart(range));
     return computePlugStats(rows, factors, this.clampHours);
+  }
+
+  plugSeries(ip: string, range: Range, factors: CostFactors): PlugSeries {
+    const rows = this.repo.getPlugSamplesByIpSince(ip, rangeStart(range));
+    return computePlugSeries(rows, factors, this.clampHours);
   }
 }

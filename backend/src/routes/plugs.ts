@@ -29,5 +29,29 @@ export function plugsRouter(ctx: AppContext): Router {
     res.json({ range, plugs });
   });
 
+  router.get("/plugs/:serial/history", (req, res) => {
+    const range = parseRange(req.query.range);
+    const factors = costFactors(ctx.settingsRepo.getAll());
+    const device = [...ctx.sampler.getLive().get().devices.values()].find(
+      (d) => d.serial === req.params.serial
+    );
+    if (!device || device.type !== "plug") {
+      res.status(404).json({ error: "Plug not found" });
+      return;
+    }
+    const series = ctx.analytics.plugSeries(device.ip, range, factors);
+    res.json({
+      serial: device.serial,
+      name: device.name,
+      icon: device.icon,
+      room: device.room,
+      online: device.online,
+      powerOn: (device.data?.powerOn as boolean | null | undefined) ?? null,
+      switchLock: (device.data?.switchLock as boolean | null | undefined) ?? null,
+      range,
+      ...series,
+    });
+  });
+
   return router;
 }

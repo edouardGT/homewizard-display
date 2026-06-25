@@ -6,6 +6,7 @@ import { EnergyFlowCard } from "../cards/EnergyFlowCard";
 import { SolarCard } from "../cards/SolarCard";
 import { BatteryCard } from "../cards/BatteryCard";
 import { FinancialCard } from "../cards/FinancialCard";
+import { ForecastCard } from "../cards/ForecastCard";
 import { UtilitiesCard } from "../cards/UtilitiesCard";
 import { PlugListCard } from "../cards/PlugListCard";
 import { relativeTime } from "../lib/format";
@@ -31,6 +32,7 @@ export function DashboardPage() {
         <SolarCard summary={summary} />
         <BatteryCard summary={summary} />
         <FinancialCard summary={summary} />
+        <ForecastCard />
         <UtilitiesCard summary={summary} />
         <PlugListCard devices={devices} />
       </div>

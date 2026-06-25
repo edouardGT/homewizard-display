@@ -62,6 +62,12 @@ export class SamplesRepo {
       .all(startTs) as PlugSampleRow[];
   }
 
+  getPlugSamplesByIpSince(ip: string, startTs: number): PlugSampleRow[] {
+    return this.db
+      .prepare("SELECT * FROM plug_samples WHERE ip = ? AND ts >= ? ORDER BY ts ASC")
+      .all(ip, startTs) as PlugSampleRow[];
+  }
+
   getFirstSampleTs(): number | null {
     const row = this.db.prepare("SELECT MIN(ts) AS ts FROM samples").get() as { ts: number | null };
     return row?.ts ?? null;

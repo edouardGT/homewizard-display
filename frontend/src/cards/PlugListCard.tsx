@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { Card } from "../components/ui/Card";
 import { EditableName } from "../components/ui/EditableName";
 import { PowerToggle } from "../components/ui/PowerToggle";
@@ -18,7 +19,13 @@ export function PlugListCard({ devices }: { devices: Device[] }) {
           {plugs.map((p) => (
             <li key={p.ip} className="flex items-center justify-between py-2">
               <span className="flex items-center gap-2">
-                <span className="text-base">{p.icon}</span>
+                {p.serial ? (
+                  <Link to={`/plugs/${p.serial}`} className="text-base hover:opacity-80" title="View details">
+                    {p.icon}
+                  </Link>
+                ) : (
+                  <span className="text-base">{p.icon}</span>
+                )}
                 <EditableName serial={p.serial} name={p.name} className="text-sm" />
                 {!p.online && (
                   <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-[10px] text-red-300">

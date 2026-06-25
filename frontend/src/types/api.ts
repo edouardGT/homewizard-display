@@ -132,6 +132,32 @@ export interface AlertsResponse {
   alerts: Alert[];
 }
 
+export interface Forecast {
+  month: string;
+  daysElapsed: number;
+  daysInMonth: number;
+  monthToDate: { netCostEur: number; importKwh: number };
+  projectedMonth: { netCostEur: number; importKwh: number };
+  perDayAvgEur: number;
+}
+
+export interface PlugHistory {
+  serial: string | null;
+  name: string;
+  icon: string | null;
+  room: string | null;
+  online: boolean;
+  powerOn: boolean | null;
+  switchLock: boolean | null;
+  range: Range;
+  points: { ts: number; powerW: number | null }[];
+  energyKwh: number;
+  estimatedCostEur: number;
+  currentPowerW: number | null;
+  peakPowerW: number | null;
+  avgPowerW: number | null;
+}
+
 export type ScheduleKind = "time" | "price" | "standby";
 export type ScheduleAction = "on" | "off";
 

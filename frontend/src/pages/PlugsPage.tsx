@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import { usePlugs } from "../hooks/usePlugs";
 import { Card } from "../components/ui/Card";
 import { RangeTabs } from "../components/ui/RangeTabs";
@@ -43,7 +44,13 @@ export function PlugsPage() {
                   {data.plugs.map((p) => (
                     <tr key={p.ip} className="border-b border-border/50 last:border-0">
                       <td className="py-2 pr-4">
-                        <span className="mr-2">{p.icon}</span>
+                        {p.serial ? (
+                          <Link to={`/plugs/${p.serial}`} className="mr-2 hover:opacity-80" title="View details">
+                            {p.icon}
+                          </Link>
+                        ) : (
+                          <span className="mr-2">{p.icon}</span>
+                        )}
                         <EditableName serial={p.serial} name={p.name} />
                         {p.room && <span className="ml-2 text-xs text-muted">{p.room}</span>}
                       </td>
