@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dev-dist/
+
+# Data (SQLite + WAL)
+data/
+
+# Env
+.env
+.env.local
+
+# Capacitor native projects
+android/
+ios/
+
+# Logs / OS
+*.log
+.DS_Store
+
+# Playwright artifacts
+.playwright-mcp/
+
+# TS build info
+*.tsbuildinfo

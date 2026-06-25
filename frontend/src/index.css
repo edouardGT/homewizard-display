@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #05070a;
+  --color-surface: #111827;
+  --color-surface-2: #1a2233;
+  --color-border: #1f2937;
+  --color-muted: #94a3b8;
+  --color-accent: #8b5cf6;
+  --color-grid: #f59e0b;
+  --color-solar: #fbbf24;
+  --color-battery: #34d399;
+  --color-house: #60a5fa;
+  --color-positive: #34d399;
+  --color-negative: #f87171;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: #e5e7eb;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Energy-flow animated dashes */
+@keyframes flow-dash {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+.flow-line-active {
+  stroke-dasharray: 6 6;
+  animation: flow-dash 1s linear infinite;
+}
