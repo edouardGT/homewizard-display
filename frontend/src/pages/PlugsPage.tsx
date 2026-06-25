@@ -5,6 +5,7 @@ import { RangeTabs } from "../components/ui/RangeTabs";
 import { Loading } from "../components/ui/Loading";
 import { ErrorBanner } from "../components/layout/ErrorBanner";
 import { EditableName } from "../components/ui/EditableName";
+import { PowerToggle } from "../components/ui/PowerToggle";
 import { euro, kwh, wattsRaw } from "../lib/format";
 import type { Range } from "../types/api";
 
@@ -34,7 +35,8 @@ export function PlugsPage() {
                     <th className="py-2 pr-4">Device</th>
                     <th className="py-2 pr-4 text-right">Now</th>
                     <th className="py-2 pr-4 text-right">Energy</th>
-                    <th className="py-2 text-right">Cost</th>
+                    <th className="py-2 pr-4 text-right">Cost</th>
+                    <th className="py-2 text-right">Power</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -47,7 +49,17 @@ export function PlugsPage() {
                       </td>
                       <td className="py-2 pr-4 text-right tabular-nums">{wattsRaw(p.currentPowerW)}</td>
                       <td className="py-2 pr-4 text-right tabular-nums">{kwh(p.energyKwh, 3)}</td>
-                      <td className="py-2 text-right tabular-nums font-semibold">{euro(p.estimatedCostEur)}</td>
+                      <td className="py-2 pr-4 text-right tabular-nums font-semibold">{euro(p.estimatedCostEur)}</td>
+                      <td className="py-2 text-right">
+                        <div className="flex justify-end">
+                          <PowerToggle
+                            serial={p.serial}
+                            on={p.powerOn}
+                            locked={p.switchLock}
+                            online={p.online}
+                          />
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

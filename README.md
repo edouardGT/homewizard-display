@@ -2,8 +2,9 @@
 
 A self-hosted energy dashboard for HomeWizard devices (P1 meter, smart plugs) plus a
 MyEmitter EMS (solar / battery / dynamic price). Live tiles, an animated energy-flow
-diagram, history & analytics, per-plug cost breakdown, settings, alerts, PWA/offline
-support, and a Capacitor mobile wrapper.
+diagram, history & analytics, per-plug cost breakdown, **socket on/off control with
+time/price/standby automations**, settings, alerts, PWA/offline support, and a
+Capacitor mobile wrapper.
 
 ## Architecture
 
@@ -60,6 +61,11 @@ and proxies `/api` to the backend, so the app is same-origin in production.
 | GET | `/api/analytics?range=&granularity=day\|week\|month` | Rollup-backed series |
 | GET | `/api/plugs?range=` | Per-plug energy + cost |
 | GET / PUT | `/api/settings` | Editable prices & alert thresholds |
+| GET | `/api/devices` | Devices with live state |
+| PUT | `/api/devices/:serial` | Rename a device |
+| PUT | `/api/devices/:serial/power` | Switch a socket on/off (`{ on }`) |
+| PUT | `/api/devices/:serial/lock` | Set child/switch lock (`{ locked }`) |
+| GET POST PUT DELETE | `/api/schedules` | Automation rules (time / price / standby) |
 | GET | `/api/health` | Liveness, data freshness, device status |
 | GET | `/api/alerts` | Active alerts |
 

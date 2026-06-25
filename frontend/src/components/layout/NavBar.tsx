@@ -4,6 +4,7 @@ const links = [
   { to: "/", label: "Dashboard", end: true },
   { to: "/history", label: "History" },
   { to: "/plugs", label: "Plugs" },
+  { to: "/schedules", label: "Schedules" },
   { to: "/settings", label: "Settings" },
 ];
 

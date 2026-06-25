@@ -31,6 +31,8 @@ export interface Summary {
 
 export interface DeviceData {
   powerW?: number | null;
+  powerOn?: boolean | null;
+  switchLock?: boolean | null;
   [k: string]: unknown;
 }
 
@@ -94,6 +96,9 @@ export interface PlugStat {
   energyKwh: number;
   estimatedCostEur: number;
   wifiStrength: number | null;
+  online?: boolean;
+  powerOn?: boolean | null;
+  switchLock?: boolean | null;
 }
 
 export interface PlugsResponse {
@@ -125,6 +130,38 @@ export interface Alert {
 
 export interface AlertsResponse {
   alerts: Alert[];
+}
+
+export type ScheduleKind = "time" | "price" | "standby";
+export type ScheduleAction = "on" | "off";
+
+export interface Schedule {
+  id: number;
+  serial: string;
+  label: string | null;
+  enabled: number;
+  kind: ScheduleKind;
+  action: ScheduleAction;
+  time_hhmm: string | null;
+  days: string | null;
+  price_threshold: number | null;
+  price_dir: "above" | "below" | null;
+  standby_w: number | null;
+  standby_min: number | null;
+}
+
+export interface ScheduleInput {
+  serial: string;
+  label?: string | null;
+  enabled?: boolean;
+  kind: ScheduleKind;
+  action?: ScheduleAction;
+  timeHhmm?: string | null;
+  days?: number[] | null;
+  priceThreshold?: number | null;
+  priceDir?: "above" | "below" | null;
+  standbyW?: number | null;
+  standbyMin?: number | null;
 }
 
 export interface HealthResponse {

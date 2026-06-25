@@ -2,6 +2,7 @@ import type { Config } from "../config/env.js";
 import type { DeviceConfig } from "../devices/types.js";
 import { readP1 } from "../devices/p1.js";
 import { readPlug } from "../devices/plug.js";
+import { readPlugState } from "../devices/control.js";
 import { readEms } from "../devices/ems.js";
 import type { SamplesRepo } from "../db/samples.repo.js";
 import type { SettingsRepo } from "../db/settings.repo.js";
@@ -50,7 +51,9 @@ export function startSampler(deps: SamplerDeps): Sampler {
     const [p1Res, emsRes, ...plugResults] = await Promise.all([
       readP1(p1Device),
       readEms(config.EMS_URL),
-      ...plugDevices.map((d) => readPlug(d).then((r) => ({ device: d, r }))),
+      ...plugDevices.map((d) =>
+        Promise.all([readPlug(d), readPlugState(d.ip)]).then(([r, s]) => ({ device: d, r, s }))
+      ),
     ]);
 
     // --- P1 ---
@@ -69,9 +72,14 @@ export function startSampler(deps: SamplerDeps): Sampler {
     live.setPlugReadings(
       plugResults.map(({ device, r }) => ({ ip: device.ip, reading: r.data ?? null, online: r.online }))
     );
-    for (const { device, r } of plugResults) {
+    for (const { device, r, s } of plugResults) {
       const resolved = resolveDeviceName(device, customNames);
-      live.upsertDevice(toLiveDevice(device, resolved, r.online, r.status, r.error, r.data));
+      const merged = {
+        ...(r.data ?? {}),
+        powerOn: s.data?.powerOn ?? null,
+        switchLock: s.data?.switchLock ?? null,
+      };
+      live.upsertDevice(toLiveDevice(device, resolved, r.online, r.status, r.error, merged));
     }
 
     live.commit(ts);

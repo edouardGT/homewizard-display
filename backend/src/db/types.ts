@@ -36,6 +36,24 @@ export interface DeviceNameRow {
   name: string;
 }
 
+export type ScheduleKind = "time" | "price" | "standby";
+export type ScheduleAction = "on" | "off";
+
+export interface ScheduleRow {
+  id: number;
+  serial: string;
+  label: string | null;
+  enabled: number; // 0 | 1
+  kind: ScheduleKind;
+  action: ScheduleAction;
+  time_hhmm: string | null;
+  days: string | null;
+  price_threshold: number | null;
+  price_dir: "above" | "below" | null;
+  standby_w: number | null;
+  standby_min: number | null;
+}
+
 export interface DailyRollupRow {
   day: string; // YYYY-MM-DD (local)
   import_kwh: number;

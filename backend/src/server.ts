@@ -6,6 +6,8 @@ import { SamplesRepo } from "./db/samples.repo.js";
 import { SettingsRepo } from "./db/settings.repo.js";
 import { RollupsRepo } from "./db/rollups.repo.js";
 import { DeviceNamesRepo } from "./db/deviceNames.repo.js";
+import { SchedulesRepo } from "./db/schedules.repo.js";
+import { Scheduler } from "./services/scheduler.js";
 import { startSampler } from "./services/sampler.js";
 import { Analytics } from "./services/analytics.js";
 import { RollupService } from "./services/rollups.js";
@@ -26,6 +28,7 @@ async function main(): Promise<void> {
   const settingsRepo = new SettingsRepo(db);
   const rollupsRepo = new RollupsRepo(db);
   const deviceNamesRepo = new DeviceNamesRepo(db);
+  const schedulesRepo = new SchedulesRepo(db);
 
   // Seed editable settings from env defaults on first boot.
   settingsRepo.seedDefaults(defaultSettings(config));
@@ -40,6 +43,9 @@ async function main(): Promise<void> {
 
   const sampler = startSampler({ config, devices, samplesRepo, settingsRepo, deviceNamesRepo });
 
+  const scheduler = new Scheduler(schedulesRepo, sampler.getLive());
+  scheduler.start();
+
   const { app } = createApp({
     sampler,
     analytics,
@@ -47,6 +53,7 @@ async function main(): Promise<void> {
     settingsRepo,
     rollupsRepo,
     deviceNamesRepo,
+    schedulesRepo,
     version: VERSION,
   });
 
@@ -58,6 +65,7 @@ async function main(): Promise<void> {
   const shutdown = (signal: string) => {
     console.log(`\n[${signal}] shutting down...`);
     sampler.stop();
+    scheduler.stop();
     rollupService.stop();
     server.close(() => {
       closeDb(db);

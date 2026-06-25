@@ -1,5 +1,6 @@
 import { Card } from "../components/ui/Card";
 import { EditableName } from "../components/ui/EditableName";
+import { PowerToggle } from "../components/ui/PowerToggle";
 import { wattsRaw } from "../lib/format";
 import type { Device } from "../types/api";
 
@@ -25,8 +26,16 @@ export function PlugListCard({ devices }: { devices: Device[] }) {
                   </span>
                 )}
               </span>
-              <span className="text-sm font-semibold tabular-nums">
-                {wattsRaw(typeof p.data?.powerW === "number" ? p.data.powerW : null)}
+              <span className="flex items-center gap-3">
+                <span className="text-sm font-semibold tabular-nums">
+                  {wattsRaw(typeof p.data?.powerW === "number" ? p.data.powerW : null)}
+                </span>
+                <PowerToggle
+                  serial={p.serial}
+                  on={p.data?.powerOn}
+                  locked={p.data?.switchLock}
+                  online={p.online}
+                />
               </span>
             </li>
           ))}

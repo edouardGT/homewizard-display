@@ -36,6 +36,23 @@ CREATE TABLE IF NOT EXISTS device_names (
   name TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS schedules (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  serial TEXT NOT NULL,
+  label TEXT,
+  enabled INTEGER NOT NULL DEFAULT 1,
+  kind TEXT NOT NULL,                  -- 'time' | 'price' | 'standby'
+  action TEXT NOT NULL DEFAULT 'off',  -- 'on' | 'off'
+  time_hhmm TEXT,                      -- 'HH:MM' (time rules)
+  days TEXT,                           -- csv of 0-6 (0=Sun), empty = every day
+  price_threshold REAL,               -- €/kWh (price rules)
+  price_dir TEXT,                      -- 'above' | 'below'
+  standby_w REAL,                     -- watts (standby rules)
+  standby_min INTEGER                 -- sustained minutes (standby rules)
+);
+
+CREATE INDEX IF NOT EXISTS idx_schedules_serial ON schedules(serial);
+
 CREATE TABLE IF NOT EXISTS daily_rollups (
   day TEXT PRIMARY KEY,
   import_kwh REAL NOT NULL DEFAULT 0,

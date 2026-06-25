@@ -3,6 +3,7 @@ import { RootLayout } from "./components/layout/RootLayout";
 import { DashboardPage } from "./pages/DashboardPage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { PlugsPage } from "./pages/PlugsPage";
+import { SchedulesPage } from "./pages/SchedulesPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
@@ -14,6 +15,7 @@ export const router = createBrowserRouter([
       { index: true, element: <DashboardPage /> },
       { path: "history", element: <HistoryPage /> },
       { path: "plugs", element: <PlugsPage /> },
+      { path: "schedules", element: <SchedulesPage /> },
       { path: "settings", element: <SettingsPage /> },
       { path: "*", element: <NotFoundPage /> },
     ],
