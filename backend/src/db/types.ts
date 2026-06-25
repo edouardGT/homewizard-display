@@ -31,6 +31,11 @@ export interface SettingRow {
   value: string;
 }
 
+export interface DeviceNameRow {
+  serial: string;
+  name: string;
+}
+
 export interface DailyRollupRow {
   day: string; // YYYY-MM-DD (local)
   import_kwh: number;

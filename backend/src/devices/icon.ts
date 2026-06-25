@@ -3,11 +3,14 @@ export function iconForDeviceName(name = ""): string {
   const n = name.toLowerCase();
 
   if (n.includes("tv") || n.includes("television")) return "📺";
+  if (n.includes("sonos") || n.includes("woofer") || n.includes("speaker") || n.includes("soundbar")) return "🔊";
+  if (n.includes("oven") || n.includes("microwave")) return "🍳";
   if (n.includes("server") || n.includes("rack") || n.includes("nas")) return "🖥️";
   if (n.includes("bedroom") || n.includes("bed")) return "🛏️";
+  // "dish" must be tested before "wash" — "dishwasher" contains "wash".
+  if (n.includes("dish") || n.includes("vaat")) return "🍽️";
   if (n.includes("wash") || n.includes("washing")) return "🧺";
   if (n.includes("dryer") || n.includes("droog")) return "🌬️";
-  if (n.includes("dish") || n.includes("vaat")) return "🍽️";
   if (n.includes("coffee") || n.includes("koffie")) return "☕";
   if (n.includes("fridge") || n.includes("koel")) return "🧊";
   if (n.includes("freezer") || n.includes("vries")) return "❄️";

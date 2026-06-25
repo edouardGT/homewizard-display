@@ -22,6 +22,3 @@ ios/
 
 # Playwright artifacts
 .playwright-mcp/
-
-# TS build info
-*.tsbuildinfo

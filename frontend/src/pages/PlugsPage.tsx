@@ -4,6 +4,7 @@ import { Card } from "../components/ui/Card";
 import { RangeTabs } from "../components/ui/RangeTabs";
 import { Loading } from "../components/ui/Loading";
 import { ErrorBanner } from "../components/layout/ErrorBanner";
+import { EditableName } from "../components/ui/EditableName";
 import { euro, kwh, wattsRaw } from "../lib/format";
 import type { Range } from "../types/api";
 
@@ -41,7 +42,7 @@ export function PlugsPage() {
                     <tr key={p.ip} className="border-b border-border/50 last:border-0">
                       <td className="py-2 pr-4">
                         <span className="mr-2">{p.icon}</span>
-                        {p.name}
+                        <EditableName serial={p.serial} name={p.name} />
                         {p.room && <span className="ml-2 text-xs text-muted">{p.room}</span>}
                       </td>
                       <td className="py-2 pr-4 text-right tabular-nums">{wattsRaw(p.currentPowerW)}</td>

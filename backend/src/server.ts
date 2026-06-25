@@ -1,10 +1,11 @@
 import "dotenv/config";
 import { loadConfig, defaultSettings } from "./config/env.js";
-import { buildDevices } from "./config/devices.js";
+import { buildDevices, enrichPlugNames } from "./config/devices.js";
 import { openDb, closeDb } from "./db/index.js";
 import { SamplesRepo } from "./db/samples.repo.js";
 import { SettingsRepo } from "./db/settings.repo.js";
 import { RollupsRepo } from "./db/rollups.repo.js";
+import { DeviceNamesRepo } from "./db/deviceNames.repo.js";
 import { startSampler } from "./services/sampler.js";
 import { Analytics } from "./services/analytics.js";
 import { RollupService } from "./services/rollups.js";
@@ -12,14 +13,19 @@ import { createApp } from "./app.js";
 
 const VERSION = "1.0.0";
 
-function main(): void {
+async function main(): Promise<void> {
   const config = loadConfig();
   const devices = buildDevices(config);
+  // Resolve plug serials → stable names + icons before sampling begins.
+  await enrichPlugNames(devices, config).catch((err) =>
+    console.error("[startup] plug name enrichment failed", err)
+  );
 
   const db = openDb(config.DB_PATH);
   const samplesRepo = new SamplesRepo(db);
   const settingsRepo = new SettingsRepo(db);
   const rollupsRepo = new RollupsRepo(db);
+  const deviceNamesRepo = new DeviceNamesRepo(db);
 
   // Seed editable settings from env defaults on first boot.
   settingsRepo.seedDefaults(defaultSettings(config));
@@ -32,7 +38,7 @@ function main(): void {
   rollupService.backfill();
   rollupService.start();
 
-  const sampler = startSampler({ config, devices, samplesRepo, settingsRepo });
+  const sampler = startSampler({ config, devices, samplesRepo, settingsRepo, deviceNamesRepo });
 
   const { app } = createApp({
     sampler,
@@ -40,6 +46,7 @@ function main(): void {
     samplesRepo,
     settingsRepo,
     rollupsRepo,
+    deviceNamesRepo,
     version: VERSION,
   });
 
@@ -64,4 +71,7 @@ function main(): void {
   process.on("SIGINT", () => shutdown("SIGINT"));
 }
 
-main();
+main().catch((err) => {
+  console.error("[startup] fatal", err);
+  process.exit(1);
+});

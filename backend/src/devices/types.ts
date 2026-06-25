@@ -11,6 +11,7 @@ export interface DeviceConfig {
   token?: string;
   room?: string | null;
   icon: string;
+  serial?: string;
 }
 
 /** Result of reading any device — never throws past its own boundary. */

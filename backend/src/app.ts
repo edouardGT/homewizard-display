@@ -3,6 +3,7 @@ import cors from "cors";
 import type { SamplesRepo } from "./db/samples.repo.js";
 import type { SettingsRepo } from "./db/settings.repo.js";
 import type { RollupsRepo } from "./db/rollups.repo.js";
+import type { DeviceNamesRepo } from "./db/deviceNames.repo.js";
 import type { DailyRollupRow } from "./db/types.js";
 import { Analytics, rangeStart, type Range } from "./services/analytics.js";
 import type { Sampler } from "./services/sampler.js";
@@ -11,6 +12,7 @@ import { historyRouter } from "./routes/history.js";
 import { plugsRouter } from "./routes/plugs.js";
 import { settingsRouter } from "./routes/settings.js";
 import { healthRouter } from "./routes/health.js";
+import { devicesRouter } from "./routes/devices.js";
 
 export interface AppContext {
   sampler: Sampler;
@@ -18,6 +20,7 @@ export interface AppContext {
   samplesRepo: SamplesRepo;
   settingsRepo: SettingsRepo;
   rollupsRepo: RollupsRepo;
+  deviceNamesRepo: DeviceNamesRepo;
   version: string;
   buildAnalytics(range: Range, granularity: "day" | "week" | "month"): AnalyticsResult;
 }
@@ -129,6 +132,7 @@ export function createApp(
   app.use("/api", plugsRouter(ctx));
   app.use("/api", settingsRouter(ctx));
   app.use("/api", healthRouter(ctx));
+  app.use("/api", devicesRouter(ctx));
 
   return { app, ctx };
 }

@@ -5,7 +5,9 @@ import { readPlug } from "../devices/plug.js";
 import { readEms } from "../devices/ems.js";
 import type { SamplesRepo } from "../db/samples.repo.js";
 import type { SettingsRepo } from "../db/settings.repo.js";
+import type { DeviceNamesRepo } from "../db/deviceNames.repo.js";
 import type { PlugSampleInsert } from "../db/types.js";
+import { resolveDeviceName } from "../config/devices.js";
 import { LiveCache, type LiveDevice } from "./liveCache.js";
 import { AlertEngine, type Alert } from "./alerts.js";
 
@@ -20,6 +22,7 @@ interface SamplerDeps {
   devices: DeviceConfig[];
   samplesRepo: SamplesRepo;
   settingsRepo: SettingsRepo;
+  deviceNamesRepo: DeviceNamesRepo;
 }
 
 /**
@@ -29,7 +32,7 @@ interface SamplerDeps {
  * is the fix for the old in-request accumulation bugs.
  */
 export function startSampler(deps: SamplerDeps): Sampler {
-  const { config, devices, samplesRepo, settingsRepo } = deps;
+  const { config, devices, samplesRepo, settingsRepo, deviceNamesRepo } = deps;
   const live = new LiveCache();
   const alerts = new AlertEngine();
 
@@ -42,6 +45,7 @@ export function startSampler(deps: SamplerDeps): Sampler {
 
   async function pollOnce(): Promise<void> {
     const ts = Date.now();
+    const customNames = deviceNamesRepo.getAll();
 
     const [p1Res, emsRes, ...plugResults] = await Promise.all([
       readP1(p1Device),
@@ -51,7 +55,8 @@ export function startSampler(deps: SamplerDeps): Sampler {
 
     // --- P1 ---
     live.updateP1(p1Res.data ?? null, p1Res.online);
-    live.upsertDevice(toLiveDevice(p1Device, p1Res.online, p1Res.status, p1Res.error, p1Res.data));
+    const p1Resolved = resolveDeviceName(p1Device, customNames);
+    live.upsertDevice(toLiveDevice(p1Device, p1Resolved, p1Res.online, p1Res.status, p1Res.error, p1Res.data));
     if (p1Res.online !== p1WasOnline) {
       console.log(`[sampler] P1 meter ${p1Res.online ? "online" : "offline"}`);
       p1WasOnline = p1Res.online;
@@ -65,7 +70,8 @@ export function startSampler(deps: SamplerDeps): Sampler {
       plugResults.map(({ device, r }) => ({ ip: device.ip, reading: r.data ?? null, online: r.online }))
     );
     for (const { device, r } of plugResults) {
-      live.upsertDevice(toLiveDevice(device, r.online, r.status, r.error, r.data));
+      const resolved = resolveDeviceName(device, customNames);
+      live.upsertDevice(toLiveDevice(device, resolved, r.online, r.status, r.error, r.data));
     }
 
     live.commit(ts);
@@ -95,12 +101,13 @@ export function startSampler(deps: SamplerDeps): Sampler {
     const plugRows: PlugSampleInsert[] = [];
     for (const { device, r } of plugResults) {
       if (r.online && r.data) {
+        const resolved = resolveDeviceName(device, customNames);
         plugRows.push({
           ts,
           ip: device.ip,
-          name: device.name,
+          name: resolved.name,
           room: device.room ?? null,
-          icon: device.icon,
+          icon: resolved.icon,
           powerW: r.data.powerW,
           importKwh: r.data.importKwh,
           wifiStrength: r.data.wifiStrength,
@@ -144,17 +151,19 @@ export function startSampler(deps: SamplerDeps): Sampler {
 
 function toLiveDevice(
   device: DeviceConfig,
+  resolved: { name: string; icon: string },
   online: boolean,
   status: number | undefined,
   error: string | undefined,
   data: unknown
 ): LiveDevice {
   return {
-    name: device.name,
+    name: resolved.name,
     type: device.type as "p1" | "plug",
     ip: device.ip,
     api: device.api,
-    icon: device.icon,
+    icon: resolved.icon,
+    serial: device.serial ?? null,
     room: device.room ?? null,
     online,
     status,

@@ -13,7 +13,13 @@ export function plugsRouter(ctx: AppContext): Router {
   router.get("/plugs", (req, res) => {
     const range = parseRange(req.query.range);
     const factors = costFactors(ctx.settingsRepo.getAll());
-    res.json({ range, plugs: ctx.analytics.plugs(range, factors) });
+    // Attach serial (rename key) by matching IP against the live device list.
+    const live = ctx.sampler.getLive().get();
+    const ipToSerial = new Map([...live.devices.values()].map((d) => [d.ip, d.serial]));
+    const plugs = ctx.analytics
+      .plugs(range, factors)
+      .map((p) => ({ ...p, serial: ipToSerial.get(p.ip) ?? null }));
+    res.json({ range, plugs });
   });
 
   return router;

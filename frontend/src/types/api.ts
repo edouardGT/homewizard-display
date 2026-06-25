@@ -40,6 +40,7 @@ export interface Device {
   ip: string;
   api: "v1" | "v2";
   icon: string;
+  serial: string | null;
   room: string | null;
   online: boolean;
   status?: number;
@@ -85,6 +86,7 @@ export interface HistoryResponse {
 
 export interface PlugStat {
   ip: string;
+  serial: string | null;
   name: string;
   room: string | null;
   icon: string | null;

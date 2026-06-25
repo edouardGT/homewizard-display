@@ -31,6 +31,11 @@ CREATE TABLE IF NOT EXISTS settings (
   value TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS device_names (
+  serial TEXT PRIMARY KEY,
+  name TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS daily_rollups (
   day TEXT PRIMARY KEY,
   import_kwh REAL NOT NULL DEFAULT 0,
